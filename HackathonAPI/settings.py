@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from decouple import config
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'hackathons',
+    'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +72,16 @@ TEMPLATES = [
         },
     },
 ]
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",)
+}
+
 
 WSGI_APPLICATION = 'HackathonAPI.wsgi.application'
 
@@ -116,6 +130,15 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 
 # Static files (CSS, JavaScript, Images)
