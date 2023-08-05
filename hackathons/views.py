@@ -1,69 +1,78 @@
-from . import models
-from django.contrib.auth import get_user_model, user_logged_in
+from .models import Hackathon, HackathonRegistration, Submission
+from django.contrib.auth import get_user_model, user_logged_in, authenticate
 from rest_framework import viewsets, generics, status
-from rest_framework_jwt.utils import jwt_payload_handler
-from rest_framework.decorators import action
+import jwt
+from django.contrib.auth.hashers import check_password
+from rest_framework.decorators import action, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from . import serializers
-import jwt
+from .serializers import (
+    HackathonSerializer,
+    HackathonRegistrationSerializer,
+    SubmissionSerializer,
+    RegisterSerializer,
+    
+    
+)
 from django.conf import settings
 
-class HackathonViewSet(viewsets.ModelViewSet):
-    queryset = models.Hackathon.objects.all()
-    permission_classes = [IsAuthenticated]
-    serializer_class = serializers.HackathonSerializer
+User = get_user_model()
 
-    class Meta:
-        model = models.Hackathon
-        fields = '__all__'
+class HackathonView(generics.CreateAPIView):
 
-    def create(self, request):
-        serializer = serializers.HackathonSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+    queryset = Hackathon.objects.all()
+    serializer = HackathonSerializer
+    
+    @permission_classes(AllowAny,)
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = HackathonSerializer(queryset, many=True)
+        return Response(serializer.data)
+    @permission_classes(IsAuthenticated)
+    def post(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = HackathonSerializer(queryset, many=True)
+        return Response(serializer.data)
 
+    
 class SubmissionViewSet(viewsets.ModelViewSet):
-    queryset = models.Submission.objects.all()
+    queryset = Submission.objects.all()
     permission_classes = [IsAuthenticated]
-    serializer_class = serializers.SubmissionSerializer
+    serializer_class = SubmissionSerializer
 
 
 class HackathonRegistrationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.HackathonRegistration.objects.all()
-    serializer_class = serializers.HackathonRegistrationSerializer
+    queryset = HackathonRegistration.objects.all()
+    serializer_class = HackathonRegistrationSerializer
     permission_classes = [IsAuthenticated]
     user = get_user_model()
 
     class Meta:
-        model = models.HackathonRegistration
+        model = HackathonRegistration
         fields = ['user', 'hackathon']
 
-    @action(detail=False, methods=['GET'])
-    def my_registered_hackathons(self, request):
-        registered_hackathons = models.HackathonRegistration.objects.filter(user=request.user)
-        return registered_hackathons
-
-    @action(detail=False, methods=['GET'])
-    def my_submissions(self, request,pk=None):
-        user = request.user
-        try:
-            enrollment = models.HackathonRegistration.objects.get(pk=pk, user=user)
-            submission = enrollment.submission
-            serializer = serializers.SubmissionSerializer(submission)
-            return Response(serializer.data)
-        except models.HackathonRegistration.DoesNotExist:
-            return Response(status=404, data={"message": "No submission found for this hackathon."})
 
 class RegisterView(generics.CreateAPIView):
     queryset = get_user_model().objects.all()
     permission_classes = (AllowAny,)
-    serializer_class = serializers.RegisterSerializer
+    serializer_class = RegisterSerializer
 
-class LoginView(generics.CreateAPIView):
-    queryset = get_user_model().objects.all()
+    
+
+class EnrolledHackathonListView(generics.ListAPIView):
+    serializer_class = HackathonSerializer
     permission_classes = [IsAuthenticated]
-    serializer_class = serializers.LoginSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Hackathon.objects.filter(enrollment__user=user)
+
+class SubmissionListView(generics.ListAPIView):
+    serializer_class = SubmissionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Submission.objects.filter(user=user)
+
+   

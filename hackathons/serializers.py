@@ -12,7 +12,6 @@ class HackathonSerializer(serializers.ModelSerializer):
         model = models.Hackathon
         fields = '__all__'
 
-
 class SubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -36,7 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('name','email','username', 'password',)
+        fields = ('first_name','last_name','email','username', 'password','confirm_password')
         extra_kwargs = {
             'name': {'required': True},
             'email': {'required': True}
@@ -46,7 +45,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create(
             username=validated_data['username'],
             email=validated_data['email'],
-            name=validated_data['first_name'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
         )
 
         user.set_password(validated_data['password'])
@@ -55,23 +55,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class HackathonRegistrationSerializer(serializers.ModelSerializer):
-    """Serializer for Hackathon Registration"""
+    """Serializer for Particular Hackathon Registration"""
     class Meta:
         model = models.HackathonRegistration
-        fields = ['user', 'hackathon']
+        fields = '__all__'
 
-class LoginSerializer(serializers.ModelSerializer):
-    """Serializer for User Login"""
-    username = serializers.CharField(
-        required=True,
-    )
-
-    password = serializers.CharField(
-        write_only=True, required=True
-    )
-
-    class Meta:
-        model = User
-        fields = ('username', 'password',)
 
 

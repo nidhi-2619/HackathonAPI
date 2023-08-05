@@ -1,8 +1,7 @@
 from django.db import models
-
 from django.contrib.auth import get_user_model,validators,password_validation
 # Create your models here.
-
+User = get_user_model()
 class Hackathon(models.Model):
     """Model for creating Hackathon by authenticated user only"""
     SUBMISSION_CHOICES = [
@@ -24,17 +23,16 @@ class Hackathon(models.Model):
 
 class HackathonRegistration(models.Model):
     """Model for registering user to hackathon"""
-    User = get_user_model()
+    
     hackathon = models.ForeignKey(Hackathon, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
     def __str__(self):
-        return f'{self.user.name}  -   {self.hackathon.title}'
+        return f'{self.user}  -   {self.hackathon.title}'
 
 class Submission(models.Model):
     """Model for submission of hackathon"""
-    hackathon = models.ForeignKey(Hackathon, on_delete=models.CASCADE,related_name='submissions')
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    hackathon = models.ForeignKey(HackathonRegistration, on_delete=models.CASCADE,related_name='submissions')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     submission_title = models.CharField(max_length=100, blank=False, null=False, default='Submission Title')
     summary = models.TextField(blank=True, null=True, default='Summary')
     image = models.ImageField(upload_to='images/', blank=True, null=True)
