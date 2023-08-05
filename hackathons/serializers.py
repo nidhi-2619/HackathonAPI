@@ -58,7 +58,7 @@ class HackathonRegistrationSerializer(serializers.ModelSerializer):
     """Serializer for Particular Hackathon Registration"""
     class Meta:
         model = models.HackathonRegistration
-        fields = '__all__'
+        fields = ['user','hackathon']
 
 
 

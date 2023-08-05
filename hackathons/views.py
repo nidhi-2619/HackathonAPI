@@ -70,9 +70,18 @@ class EnrolledHackathonListView(generics.ListAPIView):
 class SubmissionListView(generics.ListAPIView):
     serializer_class = SubmissionSerializer
     permission_classes = [IsAuthenticated]
+    def get(self, request, hackathon_id=None):
+        user = request.user
+        try:
+            enrollment = HackathonRegistration.objects.get(user=user, hackathon__id=hackathon_id)
+            submission = Submission.objects.get(enrollment=enrollment)
+            serializer = SubmissionSerializer(submission)
+            return Response(serializer.data)
+        except HackathonRegistration.DoesNotExist:
+            return Response(status=404, data={"message": "You are not enrolled in this hackathon."})
+        except Submission.DoesNotExist:
+            return Response(status=404, data={"message": "No submission found for this hackathon."})
 
-    def get_queryset(self):
-        user = self.request.user
-        return Submission.objects.filter(user=user)
+    
 
    
