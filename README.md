@@ -66,6 +66,8 @@ POST token/ to obtain JWT access and refresh token
 POST token/refresh/ to refresh the token
 ```
 
+#### Rest Of the Endpoints
+
 ```
 POST register/ to register in the api
 GET / list of hackathons in the api
