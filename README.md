@@ -12,9 +12,9 @@ This is a simple Django REST api of hackathon,using JWT authentication and mysql
 
 ### Clone the repo
 
-`
+```
 https://github.com/nidhi-2619/HackathonAPI.git
-`
+```
 
 ### Install Dependencies
 
@@ -61,15 +61,15 @@ python manage.py runserver
 
 #### To generate Token and refresh token [Authenticated Users only] 
 
-`
+```
 POST token/ to obtain JWT access and refresh token
 POST token/refresh/ to refresh the token
-`
+```
 
-`
+```
 POST register/ to register in the api
 GET / list of hackathons in the api
 POST /create-hackathon to create hackathon (authenticated user can only get this endpoint)
 GET /submissions  to see their submissions
 GET /hackathon-registrations to get the enrolled hackathons
-`
+```
