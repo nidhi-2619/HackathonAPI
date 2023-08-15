@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model,validators,password_validation
+from django.utils.translation import gettext_lazy as _
 # Create your models here.
 SUBMISSION_CHOICES = [
         ('image', 'Image'),
@@ -12,8 +13,8 @@ class Hackathon(models.Model):
 
     title = models.CharField(max_length=100)
     description = models.TextField()
-    background_image = models.ImageField(upload_to='hackathon_images/')
-    hackathon_image = models.ImageField(upload_to='hackathon_images/')
+    background_image = models.ImageField(_('Image'))
+    hackathon_image = models.ImageField(_('Image'))
     type_of_submission = models.FileField(max_length=10, choices=SUBMISSION_CHOICES)
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
@@ -40,9 +41,9 @@ class Submission(models.Model):
     summary = models.TextField(blank=True, null=True, default='Summary')
     submission_type = models.FileField(max_length=10, choices=SUBMISSION_CHOICES)
     if submission_type == 'image':
-        submission = models.ImageField(upload_to='hackathon_submissions/')
+        submission = models.ImageField(upload_to='images/hackathon_submissions/')
     elif submission_type == 'file':
-        submission = models.FileField(upload_to='hackathon_submissions/')
+        submission = models.FileField(upload_to='images/hackathon_submissions/')
     elif submission_type == 'link':
         submission = models.URLField(max_length=200)        
 

@@ -18,7 +18,7 @@ from django.conf import settings
 
 User = get_user_model()
 
-class HackathonView(generics.CreateAPIView):
+class HackathonView(generics.ListAPIView):
 
     queryset = Hackathon.objects.all()
     serializer = HackathonSerializer
@@ -28,12 +28,13 @@ class HackathonView(generics.CreateAPIView):
         queryset = self.get_queryset()
         serializer = HackathonSerializer(queryset, many=True)
         return Response(serializer.data)
-    @permission_classes(IsAuthenticated)
-    def post(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = HackathonSerializer(queryset, many=True)
-        return Response(serializer.data)
 
+class CreateHackathonView(generics.CreateAPIView):
+    
+    queryset = Hackathon.objects.all()
+    serializer_class = HackathonSerializer
+    permission_classes = [IsAuthenticated]
+    
     
 class SubmissionViewSet(viewsets.ModelViewSet):
     queryset = Submission.objects.all()
@@ -65,15 +66,17 @@ class EnrolledHackathonListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        if not user:
+            raise {"message":"user does not exist"}
         return Hackathon.objects.filter(enrollment__user=user)
 
 class SubmissionListView(generics.ListAPIView):
     serializer_class = SubmissionSerializer
     permission_classes = [IsAuthenticated]
-    def get(self, request, hackathon_id=None):
+    def get(self, request, user_id=None):
         user = request.user
         try:
-            enrollment = HackathonRegistration.objects.get(user=user, hackathon__id=hackathon_id)
+            enrollment = HackathonRegistration.objects.get(user=user, hackathon__id=user_id)
             submission = Submission.objects.get(enrollment=enrollment)
             serializer = SubmissionSerializer(submission)
             return Response(serializer.data)
@@ -82,6 +85,5 @@ class SubmissionListView(generics.ListAPIView):
         except Submission.DoesNotExist:
             return Response(status=404, data={"message": "No submission found for this hackathon."})
 
-    
 
-   
+

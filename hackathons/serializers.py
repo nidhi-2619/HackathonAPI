@@ -10,10 +10,12 @@ class HackathonSerializer(serializers.ModelSerializer):
     """Serializer for Hackathon"""
     class Meta:
         model = models.Hackathon
+        image = serializers.ImageField(max_length=None, use_url=True)
         fields = '__all__'
 
 class SubmissionSerializer(serializers.ModelSerializer):
-
+    user = serializers.CharField(source="user.username", read_only=True)
+    hackathon = serializers.CharField(source="hackathon.hackathon.title",read_only=True)
     class Meta:
         model = models.Submission
         fields = '__all__'
@@ -56,9 +58,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class HackathonRegistrationSerializer(serializers.ModelSerializer):
     """Serializer for Particular Hackathon Registration"""
+    user = serializers.CharField(source="user.username", read_only=True)
+    hackathon = serializers.CharField(source="hackathon.title",read_only=True)
     class Meta:
         model = models.HackathonRegistration
         fields = ['user','hackathon']
-
-
 

@@ -9,6 +9,7 @@ router.register('hackathon-registrations', views.HackathonRegistrationViewSet)
 urlpatterns = [
     path('api/', include(router.urls)),
     path('', views.HackathonView.as_view()),
+    path('create-hackathon/',views.CreateHackathonView.as_view()),
     path('register/', views.RegisterView.as_view()),
 
 ]
